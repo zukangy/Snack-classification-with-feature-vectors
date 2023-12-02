@@ -29,39 +29,34 @@ MAPPER = {
 
 
 class SnackDataset:
-    """Load the dataset and apply the transform"""
-    def __init__(self, transform=None):
+    """
+    A class to load the snacks dataset and apply transformations.
+    Attributes:
+        dataset_name (str): The name of the dataset to be loaded.
+        dataset (DatasetDict): The loaded dataset object.
+        transforms (callable): The transformations to be applied to the images.
+    """
+    def __init__(self):
+        """Resize the images to 256x256 pixels."""
         self.dataset_name = "Matthijs/snacks"
         self.dataset = load_dataset(self.dataset_name)
-        self.transforms = self.transforms if transform is None else transform
         self.dataset.set_transform(self.transforms)
 
     def get_train_set(self):
-        train_dataset = self.dataset['train']
-        for img in train_dataset:
+        for img in self.dataset['train']:
             yield img['pixel_values'], img['label']
 
     def get_test_set(self):
-        test_dataset = self.dataset['test']
-        for img in test_dataset:
+        for img in self.dataset['test']:
             yield img['pixel_values'], img['label']
 
     def get_validation_set(self):
-        validation_dataset = self.dataset['validation']
-        for img in validation_dataset:
+        for img in self.dataset['validation']:
             yield img['pixel_values'], img['label']
-            
-    def get_train_length(self):
-        return len(self.dataset['train'])
-    
-    def get_val_length(self):
-        return len(self.dataset['validation'])
-    
-    def get_test_length(self):
-        return len(self.dataset['test'])
         
     @staticmethod
     def transforms(examples):
+        """Transforms the images to 256x256 pixels."""
         transform = albumentations.Compose([albumentations\
             .RandomCrop(width=256, height=256)])
         examples["pixel_values"] = [
@@ -75,16 +70,21 @@ class SnackDataset:
         plt.yticks(ticks=[])
         plt.title(f"Label: {self.label_mapping(label).capitalize()}")
         plt.show()
-        return 
 
     @staticmethod   
     def label_mapping(label: int):
+        """Maps the label to the corresponding snack name."""
         return MAPPER.get(label)
     
     def reverse_label_mapping(self, label: str):
+        """Maps the snack name to the corresponding label."""
         return {v: k for k, v in MAPPER.items()}.get(label.lower())
     
     def get_images_by_label(self, label: int, type='train'):
+        """
+        Returns all images of a certain label.
+        type (str): The type of dataset to be used. Can be 'train', 'test' or 'validation'.
+        """
         images = self.dataset[type].filter(lambda example: example['label'] == label)
         for img in images:
             yield img['pixel_values'], img['label']

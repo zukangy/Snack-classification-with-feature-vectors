@@ -3,6 +3,7 @@ from skimage import exposure
 
 
 class HOG:
+    """Histogram of Oriented Gradients (HOG) feature vector"""
     def __init__(self, img, label=None, orientation=8, pixels_per_cell=(16, 16), 
                  cells_per_block=(1, 1), channel_axis=2):
         self.img = img

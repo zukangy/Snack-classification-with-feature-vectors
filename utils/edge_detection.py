@@ -24,6 +24,7 @@ class EdgeDetection:
         method: str, one of ['high_freq', 'canny']
         """
         self.img = img 
+        self._get_gray_img()
         self.gfilter = gfilter
         self.mode = mode 
         self.method = method
@@ -31,22 +32,18 @@ class EdgeDetection:
         
     def canny(self):
         low, high = self.threshold
-        return cv2.Canny(self.img, low, high) 
+        return cv2.Canny(self.grey_img, low, high) 
     
     def high_pass(self):
-        img = self.img
-        if len(img.shape) == 3:
-            img = to_grayscale(img) # Remove color artifacts
-        blurred_img = self._convolution(img)
-        assert blurred_img.shape == img.shape, "Shapes do not match"
-        return img - blurred_img
+        blurred_img = self._convolution(self.grey_img)
+        return self.img - blurred_img
           
     def _convolution(self, img):
         return convolution(img, self.gfilter, self.mode)
     
     def _get_gray_img(self):
-        return to_grayscale(self.img)
-    
+        self.grey_img = to_grayscale(self.img)
+        
     def get_edges(self):
         if self.method == 'high_freq':
             return self.high_pass()
