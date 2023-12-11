@@ -46,7 +46,6 @@ test_labels = np.array([label for _, label in test_imgs])
 
 # Create a pipeline with MinMaxScaler, PCA, and SVM
 pipeline = Pipeline([
-        ('scaler', MinMaxScaler(feature_range=(0, 1))),
         ('pca', PCA(n_components=500)),
         ('svm', SVC(random_state=1))
     ])

@@ -1,0 +1,4 @@
+logic__C: 0.5
+logic__penalty: l1
+logic__solver: liblinear
+pca__n_components: 500

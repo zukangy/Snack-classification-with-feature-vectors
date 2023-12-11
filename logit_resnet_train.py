@@ -1,11 +1,11 @@
-# Train a svm model with resnet_50 embeddings
+# Train a logistic regression with resnet_50 embeddings
 
 import pandas as pd
 import numpy as np 
 import yaml
 from tqdm import tqdm
 from sklearn.decomposition import PCA
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import PredefinedSplit
@@ -89,7 +89,7 @@ test_labels = np.array([img['label'] for img in test_snacks])
 # Create a pipeline with MinMaxScaler, PCA, and SVC
 pipeline = Pipeline([
     ('pca', PCA(n_components=n_components)),
-    ('svm', SVC(random_state=42))
+    ('logit', LogisticRegression(random_state=42))
 ])
 
 if grid_search:
@@ -106,15 +106,15 @@ if grid_search:
     
     # Define the parameter grid to search
     param_grid = {
-        'svm__C': [0.1, 1],
-        'svm__kernel': ['rbf', 'poly'],
-        'svm__decision_function_shape': ['ovo', 'ovr'],
+        'logit__penalty': ['l1', 'l2'],
+        'logit__C': [.5, 1.],
+        'logit__solver': ['lbfgs', 'liblinear']
     }
 
     # Create and fit the grid search
     # By default, GridSearchCV uses stratified k-fold cross-validation
     grid_search = GridSearchCV(pipeline, param_grid, cv=ps, scoring='accuracy', 
-                            verbose=3)
+                               verbose=3)
     grid_search.fit(combined_features, combined_labels)
 
     # Best parameters and model
@@ -122,21 +122,21 @@ if grid_search:
     best_pipeline = grid_search.best_estimator_
 
     # Write to a YAML file
-    with open('./best_resnet_svm_params.yml', 'w') as file:
+    with open('./best_resnet_logit_params.yml', 'w') as file:
         yaml.dump(grid_search.best_params_, file, default_flow_style=False)
         
 if best_pipeline is None:
     # Best params from grid search
-    with open('./best_resnet_svm_params.yml') as file:
+    with open('./best_resnet_logit_params.yml') as file:
         best_params = yaml.load(file, Loader=yaml.FullLoader)
             
     # Initialize the pipeline with best params
     pca = PCA(n_components=n_components)
-    svm = SVC(random_state=1, **best_params)
+    logit = LogisticRegression(random_state=1, **best_params)
     
     best_pipeline = Pipeline([
                 ('pca', pca),
-                ('svm', svm)
+                ('logit', logit)
             ])
     
     # Fit the pipeline
