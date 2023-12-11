@@ -18,8 +18,8 @@ from utils.create_hog import HOG
 
 
 BINS = 1600
-hue_n_pca = 500
-hog_n_pca = 300
+hue_n_pca = 150
+hog_n_pca = 1200
 grid_search = 1
 best_model = None
 
