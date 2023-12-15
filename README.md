@@ -14,6 +14,7 @@ project_root/
 |-- pca_plots/                   # PCA plot for each feature vector
 |-- utils/                       # utility functions for feature vector generation as well as dataset initialization
 |-- weekly_reports/              # Materials for each weekly progress report in Jupyter notebook.
+|-- final_vf.ipynb               # Experients with image augmentation
 |-- logistic_hog_hue_train.py    # Logistic regression model on HOG and hue histogram feature vectors combined
 |-- logistic_hog_train.py        # Logistic regression model on the HOG feature vector
 |-- logistic_hue_train.py        # Logistic regression model on the hue histogram feature vector
