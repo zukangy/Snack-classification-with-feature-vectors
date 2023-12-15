@@ -1,3 +1,4 @@
+# This file is used to create HOG feature vector for each image
 from skimage.feature import hog
 from skimage import exposure
 

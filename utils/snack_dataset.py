@@ -1,3 +1,4 @@
+# This script is used to create the snack dataset class and apply transformations
 import numpy as np
 import albumentations
 from datasets import load_dataset

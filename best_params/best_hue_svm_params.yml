@@ -1,0 +1,3 @@
+svm__C: 1
+svm__decision_function_shape: ovo
+svm__kernel: rbf
