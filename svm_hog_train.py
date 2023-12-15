@@ -1,5 +1,4 @@
 # Train a logistic regression on the HOG feature vectors
-
 import pandas as pd
 import numpy as np 
 from tqdm import tqdm 

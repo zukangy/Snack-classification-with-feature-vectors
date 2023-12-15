@@ -1,5 +1,4 @@
 # Train a logistic regression with resnet_50 embeddings
-
 import pandas as pd
 import numpy as np 
 import yaml
@@ -25,7 +24,7 @@ from utils.snack_dataset import SnackDataset
 # mush have done grid search first before 0
 grid_search = 0
 best_pipeline = None
-n_components = 1000
+n_components = 1500
 
 # Load pre-trained ResNet-50
 model = models.resnet50(pretrained=True)
@@ -122,12 +121,12 @@ if grid_search:
     best_pipeline = grid_search.best_estimator_
 
     # Write to a YAML file
-    with open('./best_resnet_logit_params.yml', 'w') as file:
+    with open('./best_params/best_resnet_logit_params.yml', 'w') as file:
         yaml.dump(grid_search.best_params_, file, default_flow_style=False)
         
 if best_pipeline is None:
     # Best params from grid search
-    with open('./best_resnet_logit_params.yml') as file:
+    with open('./best_params/best_resnet_logit_params.yml') as file:
         best_params = yaml.load(file, Loader=yaml.FullLoader)
             
     # Initialize the pipeline with best params
@@ -141,7 +140,8 @@ if best_pipeline is None:
     
     # Fit the pipeline
     best_pipeline.fit(train_embeddings, train_labels)
-    
+
+# Calculate accuracy and AUC for the training set
 train_pred = best_pipeline.predict(train_embeddings)
 train_accuracy = accuracy_score(train_labels, train_pred)
 
@@ -167,13 +167,12 @@ snack_names = [snacks.label_mapping(label) for label in range(20)]
 # Normalize the confusion matrix by row (i.e by the number of samples in each class)
 conf_matrix_normalized = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
 
-# Convert to DataFrame for Seaborn
 df_conf_matrix_normalized = pd.DataFrame(conf_matrix_normalized, index=snack_names, columns=snack_names)
 
 # Plot the normalized confusion matrix
 plt.figure(figsize=(15, 12)) 
-sns.heatmap(df_conf_matrix_normalized, annot=True, fmt=".2%", cmap='Blues', cbar=False)
-plt.title('Normalized Confusion Matrix Heatmap')
+sns.heatmap(df_conf_matrix_normalized, annot=True, cmap='Blues', cbar=False)
+plt.title('Normalized Confusion Matrix on ResNet Logistic Regression')
 plt.xlabel('Predicted Labels')
 plt.ylabel('Actual Labels')
 plt.show()

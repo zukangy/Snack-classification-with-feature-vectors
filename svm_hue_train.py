@@ -1,5 +1,4 @@
 # Train a SVM Classifier on the hue feature vectors
-
 import pandas as pd
 import numpy as np 
 import yaml
@@ -21,7 +20,7 @@ from utils.hue_histogram import hue_histogram
 BINS = 1600
 # Set to 1 to perform grid search, 0 to use best params; 
 # mush have done grid search first before 0
-grid_search = 1
+grid_search = 0
 best_pipeline = None
 
 # Load the dataset
@@ -46,7 +45,7 @@ test_labels = np.array([label for _, label in test_imgs])
 
 # Create a pipeline with MinMaxScaler, PCA, and SVM
 pipeline = Pipeline([
-        ('pca', PCA(n_components=500)),
+        ('pca', PCA(n_components=150)),
         ('svm', SVC(random_state=1))
     ])
 
@@ -80,12 +79,12 @@ if grid_search:
     best_pipeline = grid_search.best_estimator_
 
     # Write to a YAML file
-    with open('./best_hue_svm_params.yml', 'w') as file:
+    with open('./best_params/best_hue_svm_params.yml', 'w') as file:
         yaml.dump(grid_search.best_params_, file, default_flow_style=False)
         
 if best_pipeline is None:
     # Best params from grid search
-    with open('./best_hue_svm_params.yml') as file:
+    with open('./best_params/best_hue_svm_params.yml') as file:
         best_params = yaml.load(file, Loader=yaml.FullLoader)
             
     # Initialize the pipeline with best params
@@ -100,7 +99,7 @@ if best_pipeline is None:
     
     best_pipeline.fit(train_hue_features, train_labels)
     
-    
+# Calculate accuracy and AUC for the training set
 train_pred = best_pipeline.predict(train_hue_features)
 train_accuracy = accuracy_score(train_labels, train_pred)
 
@@ -125,13 +124,12 @@ snack_names = [snacks.label_mapping(label) for label in range(20)]
 # Normalize the confusion matrix by row (i.e by the number of samples in each class)
 conf_matrix_normalized = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
 
-# Convert to DataFrame for Seaborn
 df_conf_matrix_normalized = pd.DataFrame(conf_matrix_normalized, index=snack_names, columns=snack_names)
 
 # Plot the normalized confusion matrix
 plt.figure(figsize=(15, 12)) 
-sns.heatmap(df_conf_matrix_normalized, annot=True, fmt=".2%", cmap='Blues', cbar=False)
-plt.title('Normalized Confusion Matrix Heatmap')
+sns.heatmap(df_conf_matrix_normalized, annot=True, cmap='Blues', cbar=False)
+plt.title('Normalized Confusion Matrix on Hue SVM')
 plt.xlabel('Predicted Labels')
 plt.ylabel('Actual Labels')
 plt.show()

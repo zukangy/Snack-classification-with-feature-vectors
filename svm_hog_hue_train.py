@@ -1,3 +1,4 @@
+# We train a SVM model using the Hue Histogram and HOG features extracted from the images
 import pandas as pd
 import numpy as np 
 from sklearn.decomposition import PCA
@@ -18,8 +19,8 @@ from utils.create_hog import HOG
 
 
 BINS = 1600
-hue_n_pca = 500
-hog_n_pca = 300
+hue_n_pca = 150
+hog_n_pca = 1500
 grid_search = 0
 best_model = None
 
@@ -107,18 +108,19 @@ if grid_search:
     best_model = grid_search.best_estimator_
     
     # Write to a YAML file
-    with open('./best_hue_hog_svm_params.yml', 'w') as file:
+    with open('./best_params/best_hue_hog_svm_params.yml', 'w') as file:
         yaml.dump(grid_search.best_params_, file, default_flow_style=False)
     
 if best_model is None: 
     # Best params from grid search
-    with open('./best_hue_hog_svm_params.yml') as file:
+    with open('./best_params/best_hue_hog_svm_params.yml') as file:
         best_params = yaml.load(file, Loader=yaml.FullLoader)
             
     # Initialize the model with best params
     best_model = SVC(**best_params, random_state=1)
     best_model.fit(combined_train_features, train_labels)
-       
+
+# Calculate accuracy and AUC for the training set
 train_pred = best_model.predict(combined_train_features)
 train_accuracy = accuracy_score(train_labels, train_pred)
 
@@ -143,13 +145,12 @@ snack_names = [snacks.label_mapping(label) for label in range(20)]
 # Normalize the confusion matrix by row (i.e by the number of samples in each class)
 conf_matrix_normalized = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
 
-# Convert to DataFrame for Seaborn
 df_conf_matrix_normalized = pd.DataFrame(conf_matrix_normalized, index=snack_names, columns=snack_names)
 
 # Plot the normalized confusion matrix
-plt.figure(figsize=(15, 12))  # Adjust the size as needed
-sns.heatmap(df_conf_matrix_normalized, annot=True, fmt=".2%", cmap='Blues', cbar=False)
-plt.title('Normalized Confusion Matrix Heatmap')
+plt.figure(figsize=(15, 12))
+sns.heatmap(df_conf_matrix_normalized, annot=True, cmap='Blues', cbar=False)
+plt.title('Normalized Confusion Matrix on HOG Hue SVM')
 plt.xlabel('Predicted Labels')
 plt.ylabel('Actual Labels')
 plt.show()

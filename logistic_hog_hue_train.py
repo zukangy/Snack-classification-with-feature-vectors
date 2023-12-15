@@ -1,3 +1,5 @@
+# This script trains a Logistic Regression model on the Hue Histogram 
+# and HOG features extracted from the Snack Dataset.
 import pandas as pd
 import numpy as np 
 from sklearn.decomposition import PCA
@@ -17,6 +19,7 @@ from utils.hue_histogram import hue_histogram
 from utils.create_hog import HOG
 
 
+# Define parameters
 BINS = 1600
 hue_n_pca = 150
 hog_n_pca = 1200
@@ -71,10 +74,12 @@ train_hog_features = hog_pipeline.transform(train_hog_features)
 val_hog_features = hog_pipeline.transform(val_hog_features)
 test_hog_features = hog_pipeline.transform(test_hog_features)
 
+# Combine the features
 combined_train_features = np.concatenate((train_hue_features, train_hog_features), axis=1)
 combined_val_features = np.concatenate((val_hue_features, val_hog_features), axis=1)
 combined_test_features = np.concatenate((test_hue_features, test_hog_features), axis=1)
 
+# Grid search
 if grid_search:
     combined_features = np.vstack((combined_train_features, combined_val_features))
     combined_labels = np.concatenate((train_labels, val_labels))
@@ -89,9 +94,8 @@ if grid_search:
 
     # Define the parameter grid to search
     param_grid = {
-        'penalty': ['l1', 'l2'],
-        'C': [.5, 1.],
-        'solver': ['lbfgs', 'liblinear']
+        'C': [.5, 1., 5.],
+        'solver': ['lbfgs', 'saga']
     }
 
     logit = LogisticRegression(random_state=1)
@@ -107,18 +111,19 @@ if grid_search:
     best_model = grid_search.best_estimator_
     
     # Write to a YAML file
-    with open('./best_hue_hog_logit_params.yml', 'w') as file:
+    with open('./best_params/best_hue_hog_logit_params.yml', 'w') as file:
         yaml.dump(grid_search.best_params_, file, default_flow_style=False)
     
 if best_model is None: 
     # Best params from grid search
-    with open('./best_hue_hog_logit_params.yml') as file:
+    with open('./best_params/best_hue_hog_logit_params.yml') as file:
         best_params = yaml.load(file, Loader=yaml.FullLoader)
             
     # Initialize the model with best params
     best_model = LogisticRegression(**best_params, random_state=1)
     best_model.fit(combined_train_features, train_labels)
        
+# Calculate accuracy and AUC for the training set
 train_pred = best_model.predict(combined_train_features)
 train_accuracy = accuracy_score(train_labels, train_pred)
 
@@ -143,13 +148,12 @@ snack_names = [snacks.label_mapping(label) for label in range(20)]
 # Normalize the confusion matrix by row (i.e by the number of samples in each class)
 conf_matrix_normalized = conf_matrix.astype('float') / conf_matrix.sum(axis=1)[:, np.newaxis]
 
-# Convert to DataFrame for Seaborn
 df_conf_matrix_normalized = pd.DataFrame(conf_matrix_normalized, index=snack_names, columns=snack_names)
 
 # Plot the normalized confusion matrix
-plt.figure(figsize=(15, 12))  # Adjust the size as needed
-sns.heatmap(df_conf_matrix_normalized, annot=True, fmt=".2%", cmap='Blues', cbar=False)
-plt.title('Normalized Confusion Matrix Heatmap')
+plt.figure(figsize=(15, 12)) 
+sns.heatmap(df_conf_matrix_normalized, annot=True, cmap='Blues', cbar=False)
+plt.title('Normalized Confusion Matrix for HOG Hue logistic regression')
 plt.xlabel('Predicted Labels')
 plt.ylabel('Actual Labels')
 plt.show()
