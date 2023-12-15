@@ -1,0 +1,3 @@
+logit__C: 1.0
+logit__penalty: l1
+logit__solver: liblinear

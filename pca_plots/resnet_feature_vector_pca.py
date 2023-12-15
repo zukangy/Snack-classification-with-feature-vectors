@@ -1,3 +1,4 @@
+# This script plots the explained variance of the Resnet feature vector with PCA components
 import numpy as np 
 import matplotlib.pyplot as plt
 from matplotlib import style 
@@ -29,7 +30,6 @@ plt.figure(figsize=(12, 4))
 plt.plot(x_ticks, np.cumsum(pca.explained_variance_ratio_), 
          label='type of feature', marker='')
 
-# Adding aesthetics to match the provided image
 plt.xlabel('Number of components')
 plt.ylabel('Explained Variance')
 plt.title('Resnet Feature Vector: Explained Variance by PCA Components')
@@ -37,9 +37,7 @@ plt.legend()
 plt.grid(True, which='both', linestyle='--', linewidth=0.5)
 plt.tight_layout()
 
-# Set the x-axis and y-axis limits if needed
 plt.xlim(1, n_components)
 plt.ylim(0, 1)
 
-# Show the plot
 plt.show()
