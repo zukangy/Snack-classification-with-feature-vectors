@@ -1,3 +1,4 @@
+# This script is used to create hue histogram feature vector for each image
 import cv2
 
 
