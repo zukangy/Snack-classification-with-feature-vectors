@@ -1,8 +1,0 @@
-matplotlib
-numpy
-scikit-learn
-skimage
-opencv-python
-scipy
-albumentations
-datasets
