@@ -11,6 +11,7 @@ In this project, we aimed to experiment with several feature vectors for the sna
 ```
 project_root/
 |-- best_params/                 # Stores the optimal hyper-parameters for each model
+|-- final_report/                # Final report in pdf for this project
 |-- pca_plots/                   # PCA plot for each feature vector
 |-- utils/                       # utility functions for feature vector generation as well as dataset initialization
 |-- weekly_reports/              # Materials for each weekly progress report in Jupyter notebook.
