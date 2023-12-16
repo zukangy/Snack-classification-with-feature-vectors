@@ -2,6 +2,12 @@
 
 This repository is dedicated to the final project for UC Berkeley MIDS W281 Computer Vision. 
 
+Team members:
+Zukang Yang
+Kai Ding
+Sudhir Suvva
+Aditya Shah
+
 This README.md file is for the ease of navigation to our demonstration scripts. 
 
 ## Overview
